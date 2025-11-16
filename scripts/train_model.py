@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 import joblib
 import os
@@ -9,7 +10,8 @@ from scipy.sparse import hstack
 import matplotlib.pyplot as plt
 
 # --- 1. Učitavanje podataka ---
-DATA_PATH = r"C:\Users\Dragas\Downloads\moj task\IMLP4_TASK_03-products.csv"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, "data", "IMLP4_TASK_03-products.csv")
 df = pd.read_csv(DATA_PATH)
 
 # Čišćenje imena kolona
@@ -22,8 +24,15 @@ df = df.rename(columns={
 # Ukloni redove gde nema Product Title ili Category Label
 df = df.dropna(subset=["Product Title", "Category Label"])
 
+# --- 1a. Spoji slične kategorije ---
+df['Category Label'] = df['Category Label'].replace({
+    'Mobile Phone': 'Mobile Phones',
+    'fridge': 'Fridge Freezers',
+    'CPUs': 'CPU'
+    # po potrebi dodaj još
+})
+
 # --- 2. Feature engineering ---
-# Tekstualni feature
 X_text = df["Product Title"]
 
 # Dodatni numerički feature-i
@@ -34,26 +43,32 @@ df['has_caps'] = df['Product Title'].apply(lambda x: sum(1 for c in str(x) if c.
 
 X_numeric = df[['title_length','word_count','has_numbers','has_caps']].values
 
+# Skaliraj numeričke feature-e
+scaler = StandardScaler(with_mean=False)
+X_numeric_scaled = scaler.fit_transform(X_numeric)
+
 # --- 3. TF-IDF vektorizacija ---
 vectorizer = TfidfVectorizer(stop_words='english', ngram_range=(1,2), max_features=10000)
 X_vec = vectorizer.fit_transform(X_text)
 
 # Kombinujemo TF-IDF i numeričke feature-e
-X = hstack([X_vec, X_numeric])
+X = hstack([X_vec, X_numeric_scaled])
 y = df['Category Label']
 
 # --- 4. Train-test split ---
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
 
 # --- 5. Model ---
-model = LogisticRegression(max_iter=500)
+model = LogisticRegression(max_iter=1000, class_weight='balanced')
 model.fit(X_train, y_train)
 
 # --- 6. Evaluacija ---
 y_pred = model.predict(X_test)
 print("Accuracy:", accuracy_score(y_test, y_pred))
 print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
+print(classification_report(y_test, y_pred, zero_division=0))
 
 # Confusion matrix
 cm = confusion_matrix(y_test, y_pred, labels=model.classes_)
@@ -63,8 +78,10 @@ plt.tight_layout()
 plt.show()
 
 # --- 7. Čuvanje modela ---
-os.makedirs("models", exist_ok=True)
-joblib.dump(model, "models/product_classifier.pkl")
-joblib.dump(vectorizer, "models/tfidf_vectorizer.pkl")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+os.makedirs(MODELS_DIR, exist_ok=True)
+joblib.dump(model, os.path.join(MODELS_DIR, "product_classifier.pkl"))
+joblib.dump(vectorizer, os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl"))
+joblib.dump(scaler, os.path.join(MODELS_DIR, "scaler.pkl"))  # čuvamo scaler za predict_category.py
 
-print("\nModel i TF-IDF vektorizator su sačuvani u folderu 'models'.")
+print("\nModel, TF-IDF vektorizator i scaler su sačuvani u folderu 'models'.")

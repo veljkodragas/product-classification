@@ -1,69 +1,75 @@
 # Product Category Classification
 
-Ovaj projekat trenira mašinski model koji automatski prepoznaje kojoj kategoriji pripada proizvod na osnovu njegovog naziva. Koristi se TF-IDF obrada teksta i Logistic Regression model.
+Ovaj projekat trenira mašinski model koji automatski prepoznaje kojoj kategoriji pripada proizvod na osnovu njegovog naziva. Koristi se TF-IDF obrada teksta, dodatni numerički feature-i i Logistic Regression model.
 
 ---
 
 ## 📁 Struktura projekta
 
+```
 product-classification/
 │── data/
-│ └── IMLP4_TASK_03-products.csv # Dataset
+│   └── IMLP4_TASK_03-products.csv    # Dataset
 │── scripts/
-│ ├── train_model.py # Skripta za treniranje modela
-│ └── predict_category.py # Skripta za predikciju kategorije
-│── models/ # Folder sa sačuvanim modelima
-│── notebooks/ # Folder za Jupyter sveske
-│── README.md # Dokumentacija projekta
+│   ├── train_model.py                 # Skripta za treniranje modela
+│   └── predict_category.py            # Skripta za predikciju kategorije
+│── models/                            # Folder sa sačuvanim modelima i vektorizatorom
+│   ├── product_classifier.pkl
+│   ├── tfidf_vectorizer.pkl
+│   └── scaler.pkl
+│── notebooks/                         # Folder za Jupyter sveske (opciono)
+│── README.md                          # Dokumentacija projekta
+```
 
-
+---
 
 ## ⚙️ Instalacija
 
 Pokreni u terminalu:
 
 ```bash
-pip install pandas scikit-learn joblib openpyxl
+pip install pandas scikit-learn joblib matplotlib scipy openpyxl
 ```
 
 ---
 
 ## 🚀 Treniranje modela
 
-Pokreni komandno:
+Pokreni skriptu:
 
 ```bash
-python train_model.py
+python scripts/train_model.py
 ```
 
 Ako je sve dobro, videćeš:
 
-- Classification Report
-- Poruku da su model i TF-IDF vektorizator sačuvani u folderu `models/`
+- Accuracy i Classification Report  
+- Confusion matrix grafikon  
+- Poruku da su **model**, **TF-IDF vektorizator** i **scaler** sačuvani u folderu `models/`
 
 ---
 
-## 🔮 Korišćenje modela za predikciju
+## 🌮 Korišćenje modela za predikciju
 
 Pokreni:
 
 ```bash
-python predict_category.py
+python scripts/predict_category.py
 ```
 
 Skripta će te pitati:
 
 ```
-Unesi naziv proizvoda:
+Unesi naziv proizvoda (ili 'exit' za izlaz):
 ```
 
-Ti uneseš npr.:
+Primer unosa:
 
 ```
 Samsung Galaxy S21 128GB
 ```
 
-A skripta odgovara:
+Odgovor će biti:
 
 ```
 Predviđena kategorija: Mobile Phones
@@ -71,25 +77,28 @@ Predviđena kategorija: Mobile Phones
 
 ---
 
-## 📌 Napomena
+## 📍 Napomene
 
-Model radi samo ako folder **models/** postoji i sadrži:
-
-- `model.pkl`
-- `vectorizer.pkl`
-
-Ove fajlove automatski pravi `train_model.py`.
+- Model radi samo ako folder **models/** postoji i sadrži:
+  - `product_classifier.pkl`
+  - `tfidf_vectorizer.pkl`
+  - `scaler.pkl`
+- Dodatni numerički feature-i uključuju:
+  - Dužinu naziva proizvoda (`title_length`)
+  - Broj reči u nazivu (`word_count`)
+  - Da li naziv sadrži brojeve (`has_numbers`)
+  - Broj velikih slova (`has_caps`)
 
 ---
 
 ## ✔️ Kraj projekta
 
-Ovaj projekat ispunjava sve zahteve:
+Ovaj projekat obuhvata:
 
 - Učitavanje dataset-a  
-- Treniranje modela  
-- Čuvanje modela  
-- Učitavanje modela  
+- Treniranje modela sa TF-IDF i numeričkim feature-ima  
+- Čuvanje modela i vektorizatora  
 - Predikcije preko terminala  
-- README dokumentacija  
+- Confusion matrix vizualizaciju  
+- Jasnu README dokumentaciju
 

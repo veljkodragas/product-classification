@@ -1,21 +1,22 @@
 # Product Category Classification
 
-Ovaj projekat trenira mašinski model koji automatski prepoznaje kojoj kategoriji pripada proizvod na osnovu njegovog naziva. Koristi se TF-IDF obrada teksta i LinearSVC model.
+Ovaj projekat trenira mašinski model koji automatski prepoznaje kojoj kategoriji pripada proizvod na osnovu njegovog naziva. Koristi se TF-IDF obrada teksta i Logistic Regression model.
 
 ---
 
 ## 📁 Struktura projekta
 
-```
-moj task/
-│── IMLP4_TASK_03-products.xlsx    # Dataset (ulazni podaci)
-│── train_model.py                 # Skripta za treniranje modela
-│── predict_category.py            # Skripta za predikciju kategorije
-│── models/                        # Folder sa sačuvanim modelima (automatski kreira train_model.py)
-│── README.md                      # Dokumentacija projekta
-```
+product-classification/
+│── data/
+│ └── IMLP4_TASK_03-products.csv # Dataset
+│── scripts/
+│ ├── train_model.py # Skripta za treniranje modela
+│ └── predict_category.py # Skripta za predikciju kategorije
+│── models/ # Folder sa sačuvanim modelima
+│── notebooks/ # Folder za Jupyter sveske
+│── README.md # Dokumentacija projekta
 
----
+
 
 ## ⚙️ Instalacija
 
